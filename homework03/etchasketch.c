@@ -5,6 +5,9 @@
 #include <signal.h>
 #include "gpio-utils.h"
 #include <string.h>
+#include "i2c-dev.h"
+#include "i2cbusses.h"
+
 
 #define UP_GPIO 3
 #define DOWN_GPIO 2
@@ -12,6 +15,7 @@
 #define RIGHT_GPIO 15
 
 #define TIMEOUT -1 
+#define BICOLOR
 
 #define MAX_SIZE_X -1 //max board sizes, -1 will mean infinite
 #define MAX_SIZE_Y -1
@@ -29,6 +33,7 @@ int get_next_input(); //abstraction for input method
 int get_next_input_beagle(int * gpio_fd ); //abstraction for input method
 void handle_next_input(game_state * state, int input); //handles next input
 void display_state(game_state * state); //abstraction for displaying
+void display_state_matrix(game_state * state, int file); //abstraction for displaying
 game_state* setup_display(int start_size_x, int start_size_y); //sets up the gamestate
 //int free_display(game_state);
 
@@ -53,12 +58,25 @@ int main(){
 	gpio_set_dir(DOWN_GPIO, "in");
 	gpio_set_edge(DOWN_GPIO, "falling");
 	gpio_fd[3] = gpio_fd_open(DOWN_GPIO, O_RDONLY);
+	
+	int file;
+	char filename[20];
+	int i2cbus = lookup_i2c_bus("1");
+	printf("i2cbus = %d\n", i2cbus);
+	int address = parse_i2c_address("0x70");
+	printf("address = 0x%2x\n", address);
+	file = open_i2c_dev(i2cbus, filename, sizeof(filename), 0);
+	printf("file = %d\n", file);
+	i2c_smbus_write_byte(file, 0x21);//start osc (p10)
+	i2c_smbus_write_byte(file, 0x81);//disp on, blink off (p11)
+	i2c_smbus_write_byte(file, 0xe7);//full brightness (p15)
 
 	game_state * state = setup_display(5,5);
 	while(1){
-		int next_direction = get_next_input_beagle(gpio_fd);
-		handle_next_input(state,next_direction);
-		display_state(state);
+	//	int next_direction = get_next_input_beagle(gpio_fd);
+	//	handle_next_input(state,next_direction);
+	//	display_state(state);
+		display_state_matrix(state, file);
 	}
 	return 0;
 }
@@ -201,3 +219,34 @@ void display_state(game_state * state){
 	}
 	
 }
+
+
+void display_state_matrix(game_state * state, int file){
+	static __u16 bytes[] = {65535,65535,65535, 65535, 65535, 65535, 65535, 0};
+	int i;
+//	for (i = 0; i < 8; i += 1){
+//		bytes[i] = 0xFFFF;
+//	}
+	i2c_smbus_write_i2c_block_data(file, 0x00, 16, (__u8 *) bytes);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
