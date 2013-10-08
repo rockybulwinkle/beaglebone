@@ -1,0 +1,5 @@
+Sets P9_11 and P9_12 to the level of P9_21 and P9_22
+
+type "make" to compile
+
+may need to export a pin on gpio0 and 1 before running for it to work correctly
