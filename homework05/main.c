@@ -14,17 +14,18 @@ int main(){
 	*(gpio_1->oe) &= ~P9_12;
 	*(gpio_0->oe) &= ~P9_11;
 	*(gpio_0->oe) |= P9_21;
-
+	*(gpio_0->oe) |= P9_22;
 	while(1){
-		*(gpio_1->out) &= ~P9_12;
+		if ((*(gpio_0->in)) & P9_22){
+			*(gpio_1->out) |= P9_12;
+		} else{
+			*(gpio_1->out) &= ~P9_12;
+		}
 		if ((*(gpio_0->in)) & P9_21){
 			*(gpio_0->out) |= P9_11;
 		} else{
 			*(gpio_0->out) &= ~P9_11;
 		}
-		//usleep(2500000);
-		*(gpio_1->out) |= P9_12;
-		//usleep(2500000);
 	}
 	return 0;
 }

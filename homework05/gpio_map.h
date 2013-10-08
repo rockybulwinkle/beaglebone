@@ -15,7 +15,7 @@
  */
 #define P9_11		1<<30
 #define P9_21		1<<3
-
+#define P9_22		1<<2
 /*
  * on GPIO 1
  */

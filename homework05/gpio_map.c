@@ -13,7 +13,7 @@ gpio_control *  map_gpio(int fd, unsigned int base){
 	gpio->set = gpio->base + GPIO_SET;
 	gpio->clear = gpio->base + GPIO_CLEAR;
 	gpio->out = gpio->base + GPIO_OUT;
-	gpio->in = gpio->base + GPIO_IN;
+	gpio->in = gpio->base + GPIO_IN; 
 	gpio->oe = gpio->base + GPIO_OE;
 	return gpio;
 }
