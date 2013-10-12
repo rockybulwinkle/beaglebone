@@ -1,0 +1,11 @@
+[Unit]
+Description=Bonescript Server Chris Hopwood
+
+[Service]
+WorkingDirectory=/usr/lib/node_modules/bonescript
+EnvironmentFile=/etc/default/node
+ExecStart=/usr/bin/node server_mine.js
+SyslogIdentifier=bonescript-chris_hopwood
+
+[Install]
+WantedBy=multi-user.target
