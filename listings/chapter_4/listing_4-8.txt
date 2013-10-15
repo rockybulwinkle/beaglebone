@@ -1,0 +1,30 @@
+source "init/Kconfig"
+
+source "kernel/Kconfig.freezer"
+
+menu "System Type"
+
+config MMU
+        bool "MMU-based Paged Memory Management Support"
+        default y
+        help
+          Select if you want MMU-based virtualised addressing space
+          support by paged memory management. If unsure, say 'Y'.
+
+#
+# The "ARM system type" choice list is ordered alphabetically by option
+# text.  Please add new entries in the option alphabetic order.
+#
+choice
+        prompt "ARM system type"
+        default ARCH_MULTIPLATFORM
+
+config ARCH_MULTIPLATFORM
+        bool "Allow multiple platforms to be selected"
+        depends on MMU
+        select ARM_PATCH_PHYS_VIRT
+        select AUTO_ZRELADDR
+        select COMMON_CLK
+        select MULTI_IRQ_HANDLER
+        select SPARSE_IRQ
+        select USE_OF
