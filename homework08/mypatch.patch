@@ -1,0 +1,123 @@
+diff --git a/drivers/char/Kconfig b/drivers/char/Kconfig
+index 72bedad..6beabd0 100644
+--- a/drivers/char/Kconfig
++++ b/drivers/char/Kconfig
+@@ -3,6 +3,9 @@
+ #
+ 
+ menu "Character devices"
++config EXAMPLES
++	tristate "hello world module"
++	default m
+ 
+ source "drivers/tty/Kconfig"
+ 
+@@ -15,18 +18,6 @@ config DEVKMEM
+ 	  kind of kernel debugging operations.
+ 	  When in doubt, say "N".
+ 
+-config STALDRV
+-	bool "Stallion multiport serial support"
+-	depends on SERIAL_NONSTANDARD
+-	help
+-	  Stallion cards give you many serial ports.  You would need something
+-	  like this to connect more than two modems to your Linux box, for
+-	  instance in order to become a dial-in server.  If you say Y here,
+-	  you will be asked for your specific card model in the next
+-	  questions.  Make sure to read <file:Documentation/serial/stallion.txt>
+-	  in this case.  If you have never heard about all this, it's safe to
+-	  say N.
+-
+ config SGI_SNSC
+ 	bool "SGI Altix system controller communication support"
+ 	depends on (IA64_SGI_SN2 || IA64_GENERIC)
+@@ -53,7 +44,7 @@ source "drivers/tty/serial/Kconfig"
+ 
+ config TTY_PRINTK
+ 	bool "TTY driver to output user messages via printk"
+-	depends on EXPERT
++	depends on EXPERT && TTY
+ 	default n
+ 	---help---
+ 	  If you say Y here, the support for writing user messages (i.e.
+@@ -159,7 +150,7 @@ source "drivers/tty/hvc/Kconfig"
+ 
+ config VIRTIO_CONSOLE
+ 	tristate "Virtio console"
+-	depends on VIRTIO
++	depends on VIRTIO && TTY
+ 	select HVC_DRIVER
+ 	help
+ 	  Virtio console for use with lguest and other hypervisors.
+@@ -392,6 +383,7 @@ config XILINX_HWICAP
+ 
+ config R3964
+ 	tristate "Siemens R3964 line discipline"
++	depends on TTY
+ 	---help---
+ 	  This driver allows synchronous communication with devices using the
+ 	  Siemens R3964 packet protocol. Unless you are dealing with special
+@@ -439,7 +431,7 @@ source "drivers/char/pcmcia/Kconfig"
+ 
+ config MWAVE
+ 	tristate "ACP Modem (Mwave) support"
+-	depends on X86
++	depends on X86 && TTY
+ 	select SERIAL_8250
+ 	---help---
+ 	  The ACP modem (Mwave) for Linux is a WinModem. It is composed of a
+diff --git a/drivers/char/Makefile b/drivers/char/Makefile
+index 7ff1d0d..2d1ead0 100644
+--- a/drivers/char/Makefile
++++ b/drivers/char/Makefile
+@@ -62,3 +62,4 @@ obj-$(CONFIG_JS_RTC)		+= js-rtc.o
+ js-rtc-y = rtc.o
+ 
+ obj-$(CONFIG_TILE_SROM)		+= tile-srom.o
++obj-$(CONFIG_EXAMPLES)		+= examples/
+diff --git a/drivers/char/examples/Makefile b/drivers/char/examples/Makefile
+new file mode 100644
+index 0000000..93c6763
+--- /dev/null
++++ b/drivers/char/examples/Makefile
+@@ -0,0 +1 @@
++obj-${CONFIG_EXAMPLES}	+= hello1.o
+diff --git a/drivers/char/examples/hello1.c b/drivers/char/examples/hello1.c
+new file mode 100644
+index 0000000..4c81e3b
+--- /dev/null
++++ b/drivers/char/examples/hello1.c
+@@ -0,0 +1,33 @@
++/* Example Minimal Character Device Driver */
++#include <linux/module.h>
++static int debug_enable = 0;
++module_param(debug_enable, int, 0);
++MODULE_PARM_DESC(debug_enable, "Enable module debug mode.");
++
++static int spam_amount = 0;
++module_param(spam_amount, int, 0);
++MODULE_PARM_DESC(spam_amount, "Amount to spam.");
++
++
++static int __init hello_init(void)
++{
++    int i;
++    printk(KERN_INFO "Hello Example Init. Debug level is %s.  I'm going to spam you %i times\n", debug_enable? "enabled" : "disabled", spam_amount);
++    for (i = 0; i < spam_amount; i++){
++        printk(KERN_INFO "Spam %i\n", i);
++    }
++
++    return 0;
++}
++
++static void __exit hello_exit(void)
++{
++    printk(KERN_INFO "Hello Example Exit\n");
++}
++
++module_init(hello_init);
++module_exit(hello_exit);
++
++MODULE_AUTHOR("Chris Hallinan");
++MODULE_DESCRIPTION("Hello World Example");
++MODULE_LICENSE("GPL");
