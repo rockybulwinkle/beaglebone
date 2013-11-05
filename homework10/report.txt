@@ -8,4 +8,12 @@ DATE:		2013-11-05
 SUBJECT:	BusyBox
 
 BusyBox:
-The busybox file is initially 628K.  
+The busybox file is initially 628K.  With only the programs I use, it is 328K.  With only ls, it is 23K.  With ls and httpd, it goes to 40K.
+
+When I statically link, with only ls, it is 413K and works fine. With only the programs I use, it is 990K, but it doesn't work, reporting "applet not found", and yes, I am executing my build of busybox, not the system's.
+
+httpd expects the index.html to reside in the same directory that it was executed in.
+
+Project:
+
+We've been updating our project page, check it out!
